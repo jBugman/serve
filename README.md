@@ -10,3 +10,5 @@ or
 
 Parameters are optional.
 By default listens port `8080` and serves current folder.
+
+**[Get it here](https://github.com/jBugman/serve/releases)**.
