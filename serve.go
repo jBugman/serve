@@ -2,7 +2,9 @@ package main
 
 import (
 	"flag"
+	"log"
 	"net/http"
+	"os"
 	"os/user"
 	"strconv"
 	"strings"
@@ -10,14 +12,19 @@ import (
 
 func main() {
 	port := flag.Int("port", 8080, "Port to listen")
-	folder := flag.String("webroot", ".", "Folder to serve")
 	flag.Parse()
 
-	if len(*folder) > 1 && (*folder)[:2] == "~/" {
+	folder := flag.Arg(0)
+	if folder == "" {
+		folder = "."
+	} else if strings.HasPrefix(folder, "~/") {
 		usr, _ := user.Current()
-		fixedPath := strings.Replace(*folder, "~/", usr.HomeDir+"/", 1)
-		folder = &fixedPath
+		folder = strings.Replace(folder, "~/", usr.HomeDir+"/", 1)
 	}
 
-	panic(http.ListenAndServe(":"+strconv.Itoa(*port), http.FileServer(http.Dir(*folder))))
+	if _, err := os.Stat(folder); err != nil {
+		log.Fatal(err)
+	} else {
+		log.Fatal(http.ListenAndServe(":"+strconv.Itoa(*port), http.FileServer(http.Dir(folder))))
+	}
 }
